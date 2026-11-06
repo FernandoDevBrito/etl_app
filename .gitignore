@@ -1,0 +1,12 @@
+ORCHESTRATOR_PROMPT.md
+
+# python
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# orchestrator runtime state (cards + log stay local; .gitkeep keeps the folders)
+board/*/*.md
+board/_log.md
+board/.tmp/
