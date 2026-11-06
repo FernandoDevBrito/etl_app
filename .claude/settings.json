@@ -33,15 +33,10 @@
       "Bash(curl:*)",
       "Bash(wget:*)",
       "Edit(scripts/**)",
-      "Write(scripts/**)",
       "Edit(.claude/**)",
-      "Write(.claude/**)",
       "Edit(CLAUDE.md)",
-      "Write(CLAUDE.md)",
       "Edit(GEMINI.md)",
-      "Write(GEMINI.md)",
-      "Edit(board/_log.md)",
-      "Write(board/_log.md)"
+      "Edit(board/_log.md)"
     ]
   }
 }
