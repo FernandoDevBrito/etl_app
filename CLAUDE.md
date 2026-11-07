@@ -15,7 +15,7 @@ For each card in `board/backlog/` (priority = filename order):
 2. PLAN: area agent reads the card, explores the code, writes `## Plan` in the card. Vague or missing info → card goes to `blocked/` with specific questions. Never guess.
 3. IMPLEMENT: `claude -p --agent <area>`.
 4. CI: `scripts/ci.sh` (lint, tests, build). Failure output goes back to the agent.
-5. REVIEW: `qa` agent AND Gemini (`gemini -p`, rules in GEMINI.md). Both must say APPROVED.
+5. REVIEW: `qa` agent AND a Gemini model via the Antigravity CLI (`agy -p`, rules in GEMINI.md; the old `gemini` CLI no longer works for individual accounts). Both must say APPROVED.
 6. Rejected → back to the agent with the failures. Max 3 attempts, then `blocked/` as "needs human".
 7. Approved + CI green → commit, merge into base, card to `done/`, run `retro`.
 8. Backlog empty → stop.

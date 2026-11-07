@@ -2,6 +2,8 @@
 # Local multi-agent orchestrator. See CLAUDE.md for the flow.
 # Usage: bash scripts/orchestrator.sh [--dry-run] [--card <id>] [--base <branch>]
 # Env:   GEMINI_OPTIONAL=1 -> run without the Gemini review (QA agent only)
+#        REVIEW_MODEL=<id>  -> model for the cross-review via Antigravity CLI `agy` (default gemini-4-argon-high; list: agy models)
+# (the old `gemini` CLI is no longer supported for individual accounts; `agy` is its successor)
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -127,9 +129,9 @@ process() {
     qa=$(verdict "$TMP/$ID.qa$n.txt"); qa=${qa:-REJECTED}; log "$ID" qa "$qa" "$t"
 
     t=$SECONDS
-    if [ "${GEMINI_OPTIONAL:-0}" = 1 ] && ! command -v gemini >/dev/null; then gm=APPROVED; echo "gemini skipped (not installed)" > "$TMP/$ID.gemini$n.txt"; log "$ID" gemini "SKIPPED" "$t"
+    if [ "${GEMINI_OPTIONAL:-0}" = 1 ] && ! command -v agy >/dev/null; then gm=APPROVED; echo "gemini skipped (agy not installed)" > "$TMP/$ID.gemini$n.txt"; log "$ID" gemini "SKIPPED" "$t"
     else
-      STDIN_FILE="$TMP/$ID.review.txt" run_cli "$TMP/$ID.gemini$n.txt" gemini -p "Review the card and diff on stdin following GEMINI.md exactly."
+      run_cli "$TMP/$ID.gemini$n.txt" agy --model "${REVIEW_MODEL:-gemini-4-argon-high}" -p "Read GEMINI.md, then read $TMP/$ID.review.txt (card, diff, CI tail) and review it exactly as GEMINI.md says. Do not run commands or edit files."
       case $? in 98|99) abort $? gemini ;; esac
       gm=$(verdict "$TMP/$ID.gemini$n.txt"); gm=${gm:-REJECTED}; log "$ID" gemini "$gm" "$t"
     fi
@@ -152,7 +154,7 @@ main() {
   if [ $DRY = 0 ]; then
     [ -z "$(git status --porcelain)" ] || { echo "working tree not clean; commit or stash first"; exit 1; }
     command -v claude >/dev/null || { echo "claude CLI not found"; exit 1; }
-    command -v gemini >/dev/null || [ "${GEMINI_OPTIONAL:-0}" = 1 ] || { echo "gemini CLI not found (npm i -g @google/gemini-cli, or GEMINI_OPTIONAL=1)"; exit 1; }
+    command -v agy >/dev/null || [ "${GEMINI_OPTIONAL:-0}" = 1 ] || { echo "agy (Antigravity CLI) not found, or set GEMINI_OPTIONAL=1"; exit 1; }
     git checkout -q "$BASE"
   fi
   local f found=0
