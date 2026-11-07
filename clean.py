@@ -15,3 +15,15 @@ def mask_cpf(s: str) -> str:
         raise ValueError(f"invalid cpf: {s!r}")
     d = re.sub(r"\D", "", s)
     return f"***.***.{d[6:9]}-{d[9:]}"
+
+
+def dedupe_rows(rows: list[dict], key: str) -> list[dict]:
+    """Keep the first row per row[key], preserving order; KeyError if a row lacks key."""
+    seen = set()
+    out = []
+    for r in rows:
+        k = r[key]
+        if k not in seen:
+            seen.add(k)
+            out.append(r)
+    return out
