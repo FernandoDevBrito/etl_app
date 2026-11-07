@@ -14,3 +14,4 @@ board/.tmp/
 .orchestrator/runs/
 .orchestrator/streams/
 .orchestrator/state.json
+.orchestrator/ais.json

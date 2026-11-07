@@ -1,4 +1,38 @@
 {
   "base": "agents-setup",
-  "ci": "bash scripts/ci.sh"
+  "ci": "bash scripts/ci.sh",
+  "roles": {
+    "planner": {
+      "cli": "claude",
+      "model": "sonnet"
+    },
+    "builder": {
+      "cli": "claude",
+      "model": "sonnet"
+    },
+    "retro": {
+      "cli": "claude",
+      "model": "sonnet"
+    }
+  },
+  "reviewers": [
+    {
+      "name": "qa",
+      "kind": "claude",
+      "model": "sonnet",
+      "required": true,
+      "agent": "qa"
+    },
+    {
+      "name": "cross",
+      "kind": "agy",
+      "model": "gemini-4-argon-high",
+      "required": true
+    }
+  ],
+  "agents": {
+    "backend": "backend",
+    "frontend": "frontend",
+    "both": "backend"
+  }
 }
