@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import pytest
 
-from transform import normalize_name, parse_amount
+from transform import normalize_name, parse_amount, slugify
 
 
 def test_trim_collapse_title():
@@ -43,3 +43,18 @@ def test_parse_amount_value_error(bad):
 def test_parse_amount_type_error(bad):
     with pytest.raises(TypeError):
         parse_amount(bad)
+
+
+def test_slugify_example():
+    assert slugify("  Relatório Mensal: Vendas/2024!  ") == "relatorio-mensal-vendas-2024"
+
+
+@pytest.mark.parametrize("s", ["---", ""])
+def test_slugify_empty(s):
+    assert slugify(s) == ""
+
+
+@pytest.mark.parametrize("bad", [None, 123, b"x"])
+def test_slugify_type_error(bad):
+    with pytest.raises(TypeError):
+        slugify(bad)

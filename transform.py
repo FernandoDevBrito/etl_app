@@ -1,4 +1,5 @@
 import re
+import unicodedata
 from decimal import Decimal
 
 # optional "(" or "-" (before or after "R$"), digits with optional "." thousands, optional ",dd"
@@ -27,3 +28,10 @@ def parse_amount(s: str) -> Decimal:
         raise ValueError(f"invalid amount: {s!r}")
     d = Decimal(num.replace(".", "").replace(",", "."))
     return -d if (open_ or m1 or m2) else d
+
+
+def slugify(s: str) -> str:
+    if not isinstance(s, str):
+        raise TypeError("s must be str")
+    ascii_ = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode()
+    return re.sub(r"[^a-z0-9]+", "-", ascii_.lower()).strip("-")
