@@ -12,3 +12,4 @@
 - 2026-11-07 `002-vague-report` Faster ETL and a nice report: blocked, 0 attempt(s)
 - 2026-11-07 `002-vague-report` Faster ETL and a nice report: blocked, 0 attempt(s)
 - 2026-11-07 `002-vague-report-1-etl` ETL from samples/items.sql to SQLite: done, 1 attempt(s)
+- 2026-11-07 `002-vague-report-2-speed` Measure ETL run duration: done, 2 attempt(s)
