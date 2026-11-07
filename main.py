@@ -2,6 +2,8 @@ import argparse
 import re
 import sqlite3
 import sys
+import threading
+import time
 
 from transform import normalize_name
 
@@ -23,13 +25,34 @@ def main(argv: list[str] | None = None) -> int:
     a = p.parse_args(argv)
     if not re.fullmatch(r"[A-Za-z_]\w*", a.table, re.ASCII):
         p.error(f"invalid table name: {a.table!r}")
-    rows = [(i, normalize_name(n)) for i, n in extract(a.input)]
-    con = sqlite3.connect(a.db)
-    with con:
-        con.execute(f'CREATE TABLE IF NOT EXISTS "{a.table}" (id INTEGER, name TEXT)')
-        con.executemany(f'INSERT INTO "{a.table}" (id, name) VALUES (?, ?)', rows)
-    con.close()
+    run(a.input, a.db, a.table)
     return 0
+
+
+def run(input: str, db: str, table: str) -> dict:
+    start = time.perf_counter()
+    stop = threading.Event()
+
+    def tick() -> None:
+        while not stop.wait(0.1):
+            sys.stderr.write(f"\relapsed: {time.perf_counter() - start:.1f}s")
+            sys.stderr.flush()
+
+    t = threading.Thread(target=tick, daemon=True)
+    t.start()
+    try:
+        rows = [(i, normalize_name(n)) for i, n in extract(input)]
+        con = sqlite3.connect(db)
+        with con:
+            con.execute(f'CREATE TABLE IF NOT EXISTS "{table}" (id INTEGER, name TEXT)')
+            con.executemany(f'INSERT INTO "{table}" (id, name) VALUES (?, ?)', rows)
+        con.close()
+    finally:
+        duration = time.perf_counter() - start
+        stop.set()
+        t.join()
+        sys.stderr.write(f"\relapsed: {duration:.3f}s\n")
+    return {"total_duration_seconds": duration}
 
 
 if __name__ == "__main__":
