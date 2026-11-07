@@ -1,4 +1,5 @@
 import argparse
+import json
 import re
 import sqlite3
 import sys
@@ -7,14 +8,49 @@ import time
 
 from transform import normalize_name
 
+FIXES = {
+    "malformed row": "Fix the row so it has the expected number of values",
+    "duplicate key": "Remove or merge the duplicate row so the key is unique",
+    "type mismatch": "Convert the value to the column's declared type",
+}
 
-def extract(path: str) -> list[tuple[int, str]]:
-    # run the INSERTs in a scratch in-memory db, then read rows back
+
+def extract(path: str) -> tuple[list[tuple[int, str]], list[dict], int]:
+    # run each statement alone in a scratch in-memory db; row = 1-based statement number
     con = sqlite3.connect(":memory:")
     con.execute("CREATE TABLE items (id INTEGER, name TEXT)")
+    stmts, buf = [], ""
     with open(path, encoding="utf-8") as f:
-        con.executescript(f.read())
-    return con.execute("SELECT id, name FROM items").fetchall()
+        for ch in f.read():
+            buf += ch
+            # split at each ';' so several statements on one line are separate rows
+            if ch == ";" and sqlite3.complete_statement(buf):
+                stmts.append(buf)
+                buf = ""
+    # trailing chunk counts only if it holds more than comments/whitespace
+    if re.sub(r"--[^\n]*|/\*.*?\*/", "", buf, flags=re.DOTALL).strip():
+        stmts.append(buf)
+    rows, problems, seen = [], [], set()
+    for n, s in enumerate(stmts, 1):
+        kind = None
+        try:
+            cur = con.execute(s)
+            got = con.execute("SELECT id, name FROM items").fetchall()
+            con.execute("DELETE FROM items")
+            if cur.rowcount != 1 or len(got) != 1:
+                kind = "malformed row"
+            elif not isinstance(got[0][0], int) or not isinstance(got[0][1], str):
+                kind = "type mismatch"
+            elif got[0][0] in seen:
+                kind = "duplicate key"
+        except sqlite3.Error:
+            kind = "malformed row"
+        if kind:
+            problems.append({"type": kind, "row": n, "message": FIXES[kind]})
+        else:
+            seen.add(got[0][0])
+            rows.append(got[0])
+    return rows, problems, len(stmts)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -25,7 +61,7 @@ def main(argv: list[str] | None = None) -> int:
     a = p.parse_args(argv)
     if not re.fullmatch(r"[A-Za-z_]\w*", a.table, re.ASCII):
         p.error(f"invalid table name: {a.table!r}")
-    run(a.input, a.db, a.table)
+    print(json.dumps(run(a.input, a.db, a.table)))
     return 0
 
 
@@ -41,7 +77,8 @@ def run(input: str, db: str, table: str) -> dict:
     t = threading.Thread(target=tick, daemon=True)
     t.start()
     try:
-        rows = [(i, normalize_name(n)) for i, n in extract(input)]
+        raw, problems, rows_read = extract(input)
+        rows = [(i, normalize_name(n)) for i, n in raw]
         con = sqlite3.connect(db)
         with con:
             con.execute(f'CREATE TABLE IF NOT EXISTS "{table}" (id INTEGER, name TEXT)')
@@ -52,7 +89,12 @@ def run(input: str, db: str, table: str) -> dict:
         stop.set()
         t.join()
         sys.stderr.write(f"\relapsed: {duration:.3f}s\n")
-    return {"total_duration_seconds": duration}
+    return {
+        "rows_read": rows_read,
+        "rows_written": len(rows),
+        "problems": problems,
+        "total_duration_seconds": duration,
+    }
 
 
 if __name__ == "__main__":
