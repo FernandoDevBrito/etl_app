@@ -7,4 +7,5 @@
 - Parse money with a strict fullmatch regex, not strip-and-replace: replacing '-', '(', ')' anywhere silently flips signs ("R$ -10", "10-5").
 - Parser plans: specify the accepted grammar up front (sign only at start or after `R$`, balanced parens, digits only so "1e5"/"Infinity" fail) and add tests for malformed input ("R$ -10,00", "(10,00", "10-5", "1e5"), not just the card's happy cases. Card 003 was rejected once for this.
 - Dates: guard with a strict ASCII fullmatch regex before `strptime`, which accepts "5/3/2024" and padded input.
+- CPF: ASCII fullmatch `\d{3}\.?\d{3}\.?\d{3}-?\d{2}` with re.ASCII rejects Arabic-Indic digits and trailing "\n".
 - Slugify: NFKD + `encode("ascii","ignore")` strips accents without deps.
