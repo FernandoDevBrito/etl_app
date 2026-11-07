@@ -25,14 +25,20 @@
     },
     {
       "name": "cross",
-      "kind": "agy",
-      "model": "gemini-4-argon-high",
-      "required": true
+      "kind": "claude",
+      "model": "sonnet",
+      "required": true,
+      "agent": "qa"
     }
   ],
   "agents": {
     "backend": "backend",
     "frontend": "frontend",
     "both": "backend"
-  }
+  },
+  "use": [
+    "claude/sonnet",
+    "claude/opus",
+    "claude/haiku"
+  ]
 }
