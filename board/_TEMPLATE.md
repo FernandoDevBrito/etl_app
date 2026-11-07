@@ -17,10 +17,13 @@ attempts: 0
 - <what must NOT be touched or built>
 
 ## Plan
-<!-- agent fills -->
+<!-- planner fills -->
+
+## Tasks
+<!-- planner fills: - [ ] task (criterion it serves, how it is verified) ; builder ticks them -->
 
 ## Blockers / questions
-<!-- agent fills; if anything is vague or missing, list specific questions here -->
+<!-- agents fill; anything vague or missing becomes numbered questions here -->
 
 ## Status log
 <!-- orchestrator appends below this line; keep this section last -->

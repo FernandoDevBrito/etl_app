@@ -10,3 +10,7 @@ __pycache__/
 board/*/*.md
 board/_log.md
 board/.tmp/
+# orchestrator runtime state
+.orchestrator/runs/
+.orchestrator/streams/
+.orchestrator/state.json

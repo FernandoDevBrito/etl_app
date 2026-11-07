@@ -1,0 +1,4 @@
+{
+  "base": "agents-setup",
+  "ci": "bash scripts/ci.sh"
+}
