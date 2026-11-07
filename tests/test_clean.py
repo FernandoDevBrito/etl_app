@@ -2,7 +2,7 @@ from datetime import date
 
 import pytest
 
-from clean import parse_date_br
+from clean import mask_cpf, parse_date_br
 
 
 def test_parse_date_br_valid():
@@ -18,3 +18,19 @@ def test_parse_date_br_valid():
 def test_parse_date_br_invalid(s):
     with pytest.raises(ValueError):
         parse_date_br(s)
+
+
+def test_mask_cpf_valid():
+    assert mask_cpf("123.456.789-09") == "***.***.789-09"
+    assert mask_cpf("12345678909") == "***.***.789-09"
+
+
+@pytest.mark.parametrize(
+    "s",
+    ["", "1234567890", "123456789012", "123.456.789-0a", " 12345678909",
+     "123,456,789-09", "١٢٣٤٥٦٧٨٩٠١",
+     "12345678909\n"],
+)
+def test_mask_cpf_invalid(s):
+    with pytest.raises(ValueError):
+        mask_cpf(s)
