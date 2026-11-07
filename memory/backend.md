@@ -20,8 +20,7 @@
 - Dedupe: index row[key] (not .get) so missing keys raise KeyError; test a later row lacking it.
 - Multi-file bash heredocs can fail here ("Parser skipped input"); create files with the Write tool.
 - Elapsed counter: compute duration once in `finally`, set Event, join thread, write final `\relapsed: {d:.3f}s` from that same value; test splits stderr on `\r` and compares to `f"{d:.3f}"`.
-- Per-statement SQL parsing: accumulate lines + `sqlite3.complete_statement`; INTEGER affinity keeps 'abc' as text, so detect type mismatch by reading the row back and checking `isinstance`.
-- Split SQL statements per char at `;` (`complete_statement`), not per line: one line can hold several statements and `execute()` rejects multi-statement chunks.
+- Per-statement SQL parsing (card 002 took 3 attempts): split at `;` with `sqlite3.complete_statement`, not per line (one line can hold several statements; `execute()` rejects multi-statement chunks). INTEGER affinity keeps 'abc' as text, so detect type mismatch by reading the row back and checking `isinstance`.
 - Slugify: NFKD + `encode("ascii","ignore")` strips accents without deps.
 - Reviewers reject unquantified wording ('fast enough') even when the card says no threshold: reword the criterion to the measurable part, and test live ticks by monkeypatching a slow step (sleep).
 - Trailing comment-only chunk after the last statement must not count as a row: strip `--`/`/* */` before checking buf (ruff wants re.DOTALL, not re.S).
