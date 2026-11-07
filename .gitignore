@@ -15,3 +15,5 @@ board/.tmp/
 .orchestrator/streams/
 .orchestrator/state.json
 .orchestrator/ais.json
+.orchestrator/tui.size
+.orchestrator/run.out
