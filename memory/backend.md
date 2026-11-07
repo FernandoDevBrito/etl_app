@@ -19,4 +19,6 @@
 - CPF: ASCII fullmatch `\d{3}\.?\d{3}\.?\d{3}-?\d{2}` with re.ASCII rejects Arabic-Indic digits and trailing "\n".
 - Dedupe: index row[key] (not .get) so missing keys raise KeyError; test a later row lacking it.
 - Multi-file bash heredocs can fail here ("Parser skipped input"); create files with the Write tool.
+- Elapsed counter: compute duration once in `finally`, set Event, join thread, write final `\relapsed: {d:.3f}s` from that same value; test splits stderr on `\r` and compares to `f"{d:.3f}"`.
 - Slugify: NFKD + `encode("ascii","ignore")` strips accents without deps.
+- Reviewers reject unquantified wording ('fast enough') even when the card says no threshold: reword the criterion to the measurable part, and test live ticks by monkeypatching a slow step (sleep).
