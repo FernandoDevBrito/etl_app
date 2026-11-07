@@ -18,4 +18,5 @@
 - Dates: guard with a strict ASCII fullmatch regex before `strptime`, which accepts "5/3/2024" and padded input.
 - CPF: ASCII fullmatch `\d{3}\.?\d{3}\.?\d{3}-?\d{2}` with re.ASCII rejects Arabic-Indic digits and trailing "\n".
 - Dedupe: index row[key] (not .get) so missing keys raise KeyError; test a later row lacking it.
+- Multi-file bash heredocs can fail here ("Parser skipped input"); create files with the Write tool.
 - Slugify: NFKD + `encode("ascii","ignore")` strips accents without deps.
