@@ -2,7 +2,7 @@ from datetime import date
 
 import pytest
 
-from clean import mask_cpf, parse_date_br
+from clean import dedupe_rows, mask_cpf, parse_date_br
 
 
 def test_parse_date_br_valid():
@@ -34,3 +34,21 @@ def test_mask_cpf_valid():
 def test_mask_cpf_invalid(s):
     with pytest.raises(ValueError):
         mask_cpf(s)
+
+
+def test_dedupe_rows_keeps_first_and_order():
+    rows = [{"id": 2, "v": "a"}, {"id": 1, "v": "b"}, {"id": 2, "v": "c"}, {"id": 1, "v": "d"}]
+    assert dedupe_rows(rows, "id") == [{"id": 2, "v": "a"}, {"id": 1, "v": "b"}]
+
+
+def test_dedupe_rows_no_dupes_and_empty():
+    rows = [{"id": 1}, {"id": 2}]
+    assert dedupe_rows(rows, "id") == rows
+    assert dedupe_rows([], "id") == []
+
+
+def test_dedupe_rows_missing_key():
+    with pytest.raises(KeyError):
+        dedupe_rows([{"id": 1}, {"x": 2}], "id")
+    with pytest.raises(KeyError):
+        dedupe_rows([{"x": 2}], "id")
